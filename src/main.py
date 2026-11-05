@@ -135,51 +135,50 @@ def validate_filter_substring(filter_substring: str) -> str:
     return filter_substring
 
 
+def _add_required_args(parser: argparse.ArgumentParser) -> None:
+    """Добавляет обязательные аргументы командной строки."""
+    parser.add_argument(
+        "-p", "--package", required=True,
+        help="Имя анализируемого пакета.",
+    )
+    parser.add_argument(
+        "-r", "--repo", required=True,
+        help="URL репозитория или путь к файлу.",
+    )
+
+
+def _add_optional_args(parser: argparse.ArgumentParser) -> None:
+    """Добавляет необязательные аргументы командной строки."""
+    parser.add_argument(
+        "-v", "--version", default="1.0.0",
+        help="Версия анализируемого пакета.",
+    )
+    parser.add_argument(
+        "-o", "--output", default="graph.png",
+        help="Имя сгенерированного PNG-файла с графом.",
+    )
+    parser.add_argument(
+        "-t", "--test-mode", nargs="?", const="true", default="false",
+        help="Режим тестового репозитория (true/false).",
+    )
+    parser.add_argument(
+        "-a", "--ascii-tree", nargs="?", const="true", default="false",
+        help="Режим вывода в формате ASCII-дерева (true/false).",
+    )
+    parser.add_argument(
+        "-f", "--filter", default="",
+        help="Подстрока для фильтрации пакетов.",
+    )
+
+
 def create_argument_parser() -> argparse.ArgumentParser:
     """Создает и настраивает парсер аргументов командной строки."""
     parser = argparse.ArgumentParser(
         description="Инструмент визуализации графа зависимостей пакетов."
     )
-    parser.add_argument(
-        "-p", "--package", required=True, help="Имя анализируемого пакета."
-    )
-    parser.add_argument(
-        "-r", "--repo", required=True, help="URL репозитория или путь к файлу."
-    )
-    parser.add_argument(
-        "-t",
-        "--test-mode",
-        nargs="?",
-        const="true",
-        default="false",
-        help="Режим тестового репозитория (true/false).",
-    )
-    parser.add_argument(
-        "-v",
-        "--version",
-        default="1.0.0",
-        help="Версия анализируемого пакета.",
-    )
-    parser.add_argument(
-        "-o",
-        "--output",
-        default="graph.png",
-        help="Имя сгенерированного PNG-файла с графом.",
-    )
-    parser.add_argument(
-        "-a",
-        "--ascii-tree",
-        nargs="?",
-        const="true",
-        default="false",
-        help="Режим вывода в формате ASCII-дерева (true/false).",
-    )
-    parser.add_argument(
-        "-f", "--filter", default="", help="Подстрока для фильтрации пакетов."
-    )
+    _add_required_args(parser)
+    _add_optional_args(parser)
     return parser
-
-
 def build_config(argv: list[str] | None = None) -> AppConfig:
     """Парсит аргументы CLI и возвращает проверенную конфигурацию."""
     parser = create_argument_parser()
