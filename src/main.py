@@ -128,43 +128,37 @@ def validate_filter_substring(filter_substring: str) -> str:
 def create_argument_parser() -> argparse.ArgumentParser:
     """Создает и настраивает парсер аргументов командной строки."""
     parser = argparse.ArgumentParser(
-        description="Инструмент визуализации графа зависимостей пакетов."
-    )
+        description="Инструмент визуализации графа зависимостей пакетов." )
     parser.add_argument(
-        "-p", "--package", required=True, help="Имя пакета (groupId:artifactId)."
-    )
+        "-p", "--package", required=True, 
+        help="Имя пакета (groupId:artifactId)." )
     parser.add_argument(
-        "-r", "--repo", required=True, help="URL репозитория или путь к файлу."
-    )
+        "-r", "--repo", required=True, 
+        help="URL репозитория или путь к файлу."  )
     parser.add_argument(
         "-t",
         "--test-mode",
         nargs="?",
         const="true",
         default="false",
-        help="Режим тестового репозитория (true/false).",
-    )
+        help="Режим тестового репозитория (true/false).", )
     parser.add_argument(
-        "-v", "--version", required=True, help="Версия анализируемого пакета."
-    )
+        "-v", "--version", required=True, help="Версия анализируемого пакета." )
     parser.add_argument(
         "-o",
         "--output",
         default="graph.png",
-        help="Имя сгенерированного PNG-файла с графом.",
-    )
+        help="Имя сгенерированного PNG-файла с графом.",  )
     parser.add_argument(
         "-a",
         "--ascii-tree",
         nargs="?",
         const="true",
         default="false",
-        help="Режим вывода в формате ASCII-дерева (true/false).",
-    )
+        help="Режим вывода в формате ASCII-дерева (true/false).",  )
     parser.add_argument(
-        "-f", "--filter", default="", help="Подстрока для фильтрации пакетов."
-    )
-    return parser
+        "-f", "--filter", default="", help="Подстрока для фильтрации пакетов." )
+    return parser   
 
 
 def build_config(argv: list[str] | None = None) -> AppConfig:
