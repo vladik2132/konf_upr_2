@@ -105,32 +105,28 @@ def validate_version(version: str) -> str:
     return cleaned
 
 
-def validate_output_image(output_image: str) -> str:
-    """Проверяет корректность имени выходного файла изображения графа."""
-    cleaned = output_image.strip()
-    if not cleaned:
-        raise ConfigError(
-            "Имя выходного файла (--output) не может быть пустым."
-        )
-    lower_name = cleaned.lower()
-    if not lower_name.endswith(REQUIRED_EXTENSION):
-        raise ConfigError(
-            f"Файл изображения (--output) должен иметь расширение "
-            f"'{REQUIRED_EXTENSION}'."
-        )
-    stem = cleaned[: -len(REQUIRED_EXTENSION)].strip()
-    if not stem:
-        raise ConfigError("Не указано имя файла перед расширением .png.")
-    return cleaned
+def _add_required_args(parser: argparse.ArgumentParser) -> None:
+    """Добавляет обязательные аргументы CLI."""
+    parser.add_argument("-p", "--package", required=True,
+                        help="Имя анализируемого пакета.")
+    parser.add_argument("-r", "--repo", required=True,
+                        help="URL репозитория или путь к файлу.")
+    parser.add_argument("-v", "--version", required=True,
+                        help="Версия анализируемого пакета.")
 
 
-def validate_filter_substring(filter_substring: str) -> str:
-    """Проверяет корректность подстроки для фильтрации пакетов."""
-    if any(ch.isspace() for ch in filter_substring):
-        raise ConfigError(
-            "Подстрока фильтрации (--filter) не должна содержать пробелов."
-        )
-    return filter_substring
+def _add_optional_args(parser: argparse.ArgumentParser) -> None:
+    """Добавляет необязательные аргументы CLI."""
+    parser.add_argument("-t", "--test-mode", nargs="?", const="true",
+                        default="false",
+                        help="Режим тестового репозитория (true/false).")
+    parser.add_argument("-o", "--output", default="graph.png",
+                        help="Имя сгенерированного PNG-файла с графом.")
+    parser.add_argument("-a", "--ascii-tree", nargs="?", const="true",
+                        default="false",
+                        help="Режим вывода ASCII-дерева (true/false).")
+    parser.add_argument("-f", "--filter", default="",
+                        help="Подстрока для фильтрации пакетов.")
 
 
 def create_argument_parser() -> argparse.ArgumentParser:
@@ -138,43 +134,8 @@ def create_argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Инструмент визуализации графа зависимостей пакетов."
     )
-    parser.add_argument(
-        "-p", "--package", required=True, help="Имя анализируемого пакета."
-    )
-    parser.add_argument(
-        "-r", "--repo", required=True, help="URL репозитория или путь к файлу."
-    )
-    parser.add_argument(
-        "-t",
-        "--test-mode",
-        nargs="?",
-        const="true",
-        default="false",
-        help="Режим тестового репозитория (true/false).",
-    )
-    parser.add_argument(
-        "-v", "--version", required=True, help="Версия анализируемого пакета."
-    )
-    parser.add_argument(
-        "-o",
-        "--output",
-        default="graph.png",
-        help="Имя сгенерированного PNG-файла с графом.",
-    )
-    parser.add_argument(
-        "-a",
-        "--ascii-tree",
-        nargs="?",
-        const="true",
-        default="false",
-        help="Режим вывода в формате ASCII-дерева (true/false).",
-    )
-    parser.add_argument(
-        "-f",
-        "--filter",
-        default="",
-        help="Подстрока для фильтрации пакетов.",
-    )
+    _add_required_args(parser)
+    _add_optional_args(parser)
     return parser
 
 
