@@ -136,25 +136,20 @@ def validate_filter_substring(filter_substring: str) -> str:
     return filter_substring
 
 
-def create_argument_parser() -> argparse.ArgumentParser:
-    """Создает и настраивает парсер аргументов командной строки."""
-    parser = argparse.ArgumentParser(
-        description="Инструмент визуализации графа зависимостей пакетов."
+def _add_required_args(parser: argparse.ArgumentParser) -> None:
+    """Добавляет обязательные аргументы командной строки."""
+    parser.add_argument(
+        "-p", "--package", required=True,
+        help="Имя анализируемого пакета.",
     )
     parser.add_argument(
-        "-p", "--package", required=True, help="Имя анализируемого пакета."
+        "-r", "--repo", required=True,
+        help="URL репозитория или путь к файлу.",
     )
-    parser.add_argument(
-        "-r", "--repo", required=True, help="URL репозитория или путь к файлу."
-    )
-    parser.add_argument(
-        "-t",
-        "--test-mode",
-        nargs="?",
-        const="true",
-        default="false",
-        help="Режим тестового репозитория (true/false).",
-    )
+
+
+def _add_optional_args(parser: argparse.ArgumentParser) -> None:
+    """Добавляет необязательные аргументы командной строки."""
     parser.add_argument(
         "-v", "--version", default="1.0.0", help="Версия пакета."
     )
@@ -162,26 +157,31 @@ def create_argument_parser() -> argparse.ArgumentParser:
         "-o", "--output", default="graph.png", help="Имя PNG-файла с графом."
     )
     parser.add_argument(
-        "-a",
-        "--ascii-tree",
-        nargs="?",
-        const="true",
-        default="false",
+        "-t", "--test-mode", nargs="?", const="true", default="false",
+        help="Режим тестового репозитория (true/false).",
+    )
+    parser.add_argument(
+        "-a", "--ascii-tree", nargs="?", const="true", default="false",
         help="Режим вывода в формате ASCII-дерева (true/false).",
     )
     parser.add_argument(
-        "-f", "--filter", default="", help="Подстрока для фильтрации пакетов."
+        "-f", "--filter", default="",
+        help="Подстрока для фильтрации пакетов.",
     )
     parser.add_argument(
-        "-l",
-        "--load-order",
-        nargs="?",
-        const="true",
-        default="true",
+        "-l", "--load-order", nargs="?", const="true", default="true",
         help="Режим вывода порядка загрузки зависимостей (true/false).",
     )
-    return parser
 
+
+def create_argument_parser() -> argparse.ArgumentParser:
+    """Создает и настраивает парсер аргументов командной строки."""
+    parser = argparse.ArgumentParser(
+        description="Инструмент визуализации графа зависимостей пакетов."
+    )
+    _add_required_args(parser)
+    _add_optional_args(parser)
+    return parser
 
 def build_config(argv: list[str] | None = None) -> AppConfig:
     """Парсит аргументы CLI и возвращает проверенную конфигурацию."""
