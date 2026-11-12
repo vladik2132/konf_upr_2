@@ -11,5 +11,5 @@ Write-Host "`n--- 2. Maven Package 2: commons-cli:commons-cli (1.5.0) ---"
 Write-Host "`n--- 3. Maven Package 3: org.slf4j:slf4j-simple (1.7.36) ---"
 & $py -m src.main -p org.slf4j:slf4j-simple -r $url -v 1.7.36 -o slf4j.png -a true
 
-Write-Host "`n--- 4. Test Repository Package A ---"
+Write-Host "`n--- 4. Test Repository Package A (with ASCII tree & PNG) ---"
 & $py -m src.main -p A -r .\tests\test_repo5.txt -t true -o test_a.png -a true
