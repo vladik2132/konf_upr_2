@@ -1,4 +1,4 @@
-﻿﻿$py = ".\.venv\Scripts\python.exe"
+﻿﻿﻿$py = ".\.venv\Scripts\python.exe"
 $url = "https://repo1.maven.org/maven2"
 
 Write-Host "`n--- 1. Корректный запуск: прямые зависимости junit:junit ---"
