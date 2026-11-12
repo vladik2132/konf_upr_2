@@ -6,7 +6,7 @@ import re
 import sys
 import urllib.error
 import urllib.request
-import xml.etree.ElementTree as ET
+from xml.etree.ElementTree import Element, ParseError, fromstring
 from dataclasses import dataclass
 from urllib.parse import urlparse
 
@@ -229,7 +229,7 @@ def strip_namespace(tag: str) -> str:
 
 
 def extract_pom_properties(
-    root: ET.Element, package_version: str
+    root: Element, package_version: str
 ) -> dict[str, str]:
     """Извлекает словарь свойств <properties> из корневого элемента POM."""
     props = {
@@ -254,7 +254,7 @@ def resolve_property(value: str, props: dict[str, str]) -> str:
 
 
 def parse_dependency_element(
-    dep_elem: ET.Element, props: dict[str, str]
+    dep_elem: Element, props: dict[str, str]
 ) -> str | None:
     """Извлекает координаты одной зависимости из элемента <dependency>."""
     fields: dict[str, str] = {}
@@ -276,8 +276,8 @@ def parse_dependency_element(
 def parse_direct_dependencies(xml_text: str, version: str) -> list[str]:
     """Парсит XML-текст POM-файла и возвращает список прямых зависимостей."""
     try:
-        root = ET.fromstring(xml_text)
-    except ET.ParseError as exc:
+        root = fromstring(xml_text)
+    except ParseError as exc:
         raise ConfigError(
             f"Ошибка разбора XML в POM-файле: {exc}."
         ) from exc
