@@ -8,7 +8,7 @@ import subprocess
 import sys
 import urllib.error
 import urllib.request
-import xml.etree.ElementTree as ET
+from xml.etree.ElementTree import Element, ParseError, fromstring
 from dataclasses import dataclass
 from typing import Callable
 from urllib.parse import urlparse
@@ -138,25 +138,20 @@ def validate_filter_substring(filter_substring: str) -> str:
     return filter_substring
 
 
-def create_argument_parser() -> argparse.ArgumentParser:
-    """Создает и настраивает парсер аргументов командной строки."""
-    parser = argparse.ArgumentParser(
-        description="Инструмент визуализации графа зависимостей пакетов."
+def _add_required_args(parser: argparse.ArgumentParser) -> None:
+    """Добавляет обязательные аргументы командной строки."""
+    parser.add_argument(
+        "-p", "--package", required=True,
+        help="Имя анализируемого пакета.",
     )
     parser.add_argument(
-        "-p", "--package", required=True, help="Имя анализируемого пакета."
+        "-r", "--repo", required=True,
+        help="URL репозитория или путь к файлу.",
     )
-    parser.add_argument(
-        "-r", "--repo", required=True, help="URL репозитория или путь к файлу."
-    )
-    parser.add_argument(
-        "-t",
-        "--test-mode",
-        nargs="?",
-        const="true",
-        default="false",
-        help="Режим тестового репозитория (true/false).",
-    )
+
+
+def _add_optional_args(parser: argparse.ArgumentParser) -> None:
+    """Добавляет необязательные аргументы командной строки."""
     parser.add_argument(
         "-v", "--version", default="1.0.0", help="Версия пакета."
     )
@@ -164,24 +159,30 @@ def create_argument_parser() -> argparse.ArgumentParser:
         "-o", "--output", default="graph.png", help="Имя PNG-файла с графом."
     )
     parser.add_argument(
-        "-a",
-        "--ascii-tree",
-        nargs="?",
-        const="true",
-        default="false",
+        "-t", "--test-mode", nargs="?", const="true", default="false",
+        help="Режим тестового репозитория (true/false).",
+    )
+    parser.add_argument(
+        "-a", "--ascii-tree", nargs="?", const="true", default="false",
         help="Режим вывода в формате ASCII-дерева (true/false).",
     )
     parser.add_argument(
-        "-f", "--filter", default="", help="Подстрока для фильтрации пакетов."
+        "-f", "--filter", default="",
+        help="Подстрока для фильтрации пакетов.",
     )
     parser.add_argument(
-        "-l",
-        "--load-order",
-        nargs="?",
-        const="true",
-        default="false",
-        help="Режим вывода порядка загрузки (true/false).",
+        "-l", "--load-order", nargs="?", const="true", default="true",
+        help="Режим вывода порядка загрузки зависимостей (true/false).",
     )
+
+
+def create_argument_parser() -> argparse.ArgumentParser:
+    """Создает и настраивает парсер аргументов командной строки."""
+    parser = argparse.ArgumentParser(
+        description="Инструмент визуализации графа зависимостей пакетов."
+    )
+    _add_required_args(parser)
+    _add_optional_args(parser)
     return parser
 
 
@@ -255,7 +256,7 @@ def strip_namespace(tag: str) -> str:
 
 
 def extract_pom_properties(
-    root: ET.Element, package_version: str
+    root: Element, package_version: str
 ) -> dict[str, str]:
     """Извлекает словарь свойств <properties> из корневого элемента POM."""
     props = {
@@ -280,7 +281,7 @@ def resolve_property(value: str, props: dict[str, str]) -> str:
 
 
 def parse_dependency_element(
-    dep_elem: ET.Element, props: dict[str, str]
+    dep_elem: Element, props: dict[str, str]
 ) -> str | None:
     """Извлекает координаты одной зависимости из элемента <dependency>."""
     fields: dict[str, str] = {}
@@ -302,8 +303,8 @@ def parse_dependency_element(
 def parse_direct_dependencies(xml_text: str, version: str) -> list[str]:
     """Парсит XML-текст POM-файла и возвращает список прямых зависимостей."""
     try:
-        root = ET.fromstring(xml_text)
-    except ET.ParseError as exc:
+        root = fromstring(xml_text)
+    except ParseError as exc:
         raise ConfigError(
             f"Ошибка разбора XML в POM-файле: {exc}."
         ) from exc
